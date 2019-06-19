@@ -1,0 +1,38 @@
+.container {
+  display : flex;
+  flex-direction : column;
+  justify-content: center;
+  height: 100vh;
+  align-items : center;
+  background-color : black;
+}
+body, html {margin: 0;padding: 0;height : 100vh;}
+#login {
+  position: absolute;
+  flex-direction : column;
+  justify-content: center;
+  align-items : center;
+  top : 30vh;
+  left : 20vw;
+  width : 60vw;
+  height : 30vh;
+  display : flex;
+}
+#lobby {
+  height: 30px;
+  width : 200px;
+  border-radius: 25px;
+  margin-top : 15px;
+}
+#name {
+  height: 30px;
+  width : 200px;
+  border-radius: 25px;
+  margin-top : 15px;
+}
+#submit {
+  height: 30px;
+  width : 200px;
+  border-radius: 25px;
+  margin-top : 15px;
+}
