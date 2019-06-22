@@ -19,35 +19,55 @@ function getRoom(id){
     }
   }
   let newRoom = new Room(id);
-  newRoom.startLoop(io);
   rooms.push(newRoom);
   return newRoom;
 }
-
-io.on('connection',function(socket){
-  let room = null;
-  let player = null;
-  socket.on('submit',function(data){
+function newPlayer(data,connState,socket){
+  connState.room = getRoom(data.room);
+  if(connState.room.getGameRunning()){
+    connState.room = null;
+    socket.emit('log',"Game Already Running !");
+  }
+  else {
+    connState.player = connState.room.addPlayer(data.name);
     socket.join(data.room);
-    room = getRoom(data.room);
-    player = room.addPlayer();
-    socket.emit('init_player',player);
+    io.sockets.in(connState.room.id).emit('players_joined',connState.room.getPlayers());
+  }
+}
+function leavePlayer(connState,socket){
+  if(!connState.player)return;
+  connState.player.destroyPlayer(connState.room.getGameState());
+  socket.leave(connState.room.id);
+  io.sockets.in(connState.room.id).emit('players_joined',connState.room.getPlayers());
+}
+io.on('connection',function(socket){
+  let connState = {
+    room : null,
+    player : null
+  }
+  socket.on('submit',function(playerData){
+    newPlayer(playerData,connState,socket);
   });
   socket.on('player_update',function(p){
-    if(!player)return;
-      room.updatePlayer(p);
+    if(!connState.player)return;
+      connState.room.updatePlayer(p);
   });
   socket.on('shoot',function(target){
-    if(!player)return;
-    let bulletDirection = utils.getBulletDirection(player.x,player.y,target.x,target.y);
-    room.addBullet(player.x,player.y, bulletDirection,player);
+    if(!connState.player)return;
+    let bulletDirection = utils.getBulletDirection(connState.player.x,connState.player.y,target.x,target.y);
+    connState.room.addBullet(connState.player.x,connState.player.y, bulletDirection,connState.player);
   });
-  socket.on('debug',function(data){
-    console.log(data);
+  socket.on('ready',function(){
+    connState.room.readyPlayer(connState.player,io);
+    connState.player.initPlayer();
+    socket.emit('player_init',connState.player);
+    io.sockets.in(connState.room.id).emit('players_joined',connState.room.getPlayers());
   });
   socket.on('disconnect',function(){
-    if(!player)return;
-      player.destroyPlayer(room.getGameState());
+    leavePlayer(connState,socket);
+  });
+  socket.on('leave',function(){
+    leavePlayer(connState,socket);
   });
 });
 

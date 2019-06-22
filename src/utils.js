@@ -27,6 +27,6 @@ module.exports = {
     else return false;
   },
   getMinimumPlayerSize : function(){
-    return 5;
+    return 9;
   }
 };

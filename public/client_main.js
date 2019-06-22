@@ -32,13 +32,17 @@ player = null;
 function client_submit(){
   let room = document.getElementById('lobby');
   let name = document.getElementById('name');
-  let login = document.getElementById('login');
-  login.remove();
   socket.emit('submit', {room: room.value , name : name.value});
+  document.getElementById('login').style.display = 'none';
+  document.getElementById('listplayers').style.display = 'flex';
 }
-function client_send(){
-  let chat = document.getElementById('chat');
-  socket.emit('chat',chat.value);
+function ready(){
+  socket.emit('ready');
+}
+function leave(){
+  socket.emit('leave');
+  document.getElementById('login').style.display = 'flex';
+  document.getElementById('listplayers').style.display = 'none';
 }
 
 var drawPlayer = function(player) {
@@ -67,11 +71,33 @@ socket.on('render',function(gameState){
   }
 });
 
-socket.on('init_player',function(p){
+socket.on('player_init',function(p){
    console.log(p);
    player=p;
 });
-
+socket.on('game_end',function(){
+  clearCanvas();
+  console.log('gameEnd');
+  document.getElementById('listplayers').style.display = 'flex';
+});
+socket.on('players_joined',function(players){
+  let node =  document.getElementById('list');
+  while(node.firstChild){
+    node.removeChild(node.firstChild);
+  }
+  for(let player of players){
+    let li = document.createElement('li');
+    li.appendChild(document.createTextNode(player.name));
+    li.appendChild(document.createTextNode(player.ready?'Ready':'Not Ready'));
+    document.getElementById('list').appendChild(li);
+  }
+});
+socket.on('loop_started',function(){
+  document.getElementById('listplayers').style.display = 'none';
+});
+socket.on('log',function(log){
+  alert(log);
+})
 function getMousePos(canvas, evt) {
   var rect = canvas.getBoundingClientRect();
   return {
