@@ -34,9 +34,8 @@ Room.prototype.startLoop = function(io){
     this.loop = setInterval(function(id,io,gameState){
 
         //game loop starts here
-
-        console.log(gameState.temp);
         if(gameState.players.length <= 1){
+            //End The Loop
             clearInterval(this);
             if(gameState.players.length){
 
@@ -56,11 +55,11 @@ Room.prototype.startLoop = function(io){
             io.sockets.in(id).emit('players_joined',gameState.players);
             return;
         }
+        for(let player of gameState.players){
+            player.correctOutOfBounds();
+        }
         for(bullet of gameState.bullets){
             bullet.updatePosition(gameState);
-        }
-        for(player of gameState.players){
-            if(player.size < utils.getMinimumPlayerSize())player.destroyPlayer(gameState);
         }
         io.sockets.in(id).emit('render', gameState);
     },50,this.id,io,this.gameState);
@@ -69,6 +68,10 @@ Room.prototype.getPlayers = function(){
     return this.gameState.players;
 }
 Room.prototype.updatePlayer = function(p){
+    for(let player of this.gameState.players){
+        if(player.id === p.id)continue;
+        if(utils.isColliding(p,player,p.size,player.size))return;
+    }
     for(let player of this.gameState.players){
         if(player.id === p.id){
             player.x = p.x;
@@ -110,5 +113,6 @@ Room.prototype.readyPlayer = function(player,io){
 Room.prototype.startNewGame = function(io){
     this.startLoop(io);
     this.setGameRunning(true);
+    this.gameState.bullets=[];
 }
 module.exports = Room;

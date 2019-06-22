@@ -18,10 +18,10 @@ Bullet.prototype.updatePosition = function(gameState){
     this.y = this.y + this.direction.y * this.velocity;
     let width = utils.getWidth();
     let height = utils.getHeight();
-    if(this.x < 0 || this.y < 0 || this.x > width || this.y > height){
-        this.destroyBullet(gameState);
-        return;
-    };
+    if(this.x < 0)this.direction.x = -1 * this.direction.x;
+    if(this.y < 0)this.direction.y = -1 * this.direction.y;
+    if(this.x > width)this.direction.x = -1 * this.direction.x;
+    if(this.y > height)this.direction.y = -1 * this.direction.y;
     this.shootPlayer(gameState);
 
 }
@@ -30,6 +30,7 @@ Bullet.prototype.shootPlayer = function(gameState){
     for(let player of players){
         if(utils.isColliding(player,this,utils.getBulletSize(),player.size)){
             player.size -= 1;
+            if(player.size < utils.getMinimumPlayerSize())player.destroyPlayer(gameState);
             this.destroyBullet(gameState);
         };
     }

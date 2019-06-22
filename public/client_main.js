@@ -8,19 +8,25 @@ var isMousePressed = false;
 var playerCanShoot = false;
 var timeoutId = null;
 
-c.width = 400 * dpr;
-c.height = 700 * dpr;
-c.style.width = 400;
-c.style.height = 700;
-var width = c.width;
-var height = c.height;
-var movementUnit = 10;
+// var image = new Image();
+// image.src = "https://owips.com/sites/default/files/clipart/drawn-spaceship/383245/drawn-spaceship-top-view-383245-1212752.png";
+
+var width = 400;
+var height = 700;
+
+c.width = width * dpr;
+c.height = height * dpr;
+c.style.width = width;
+c.style.height = height;
+var movementUnit = 5;
 var ctx = c.getContext("2d");
 ctx.scale(dpr, dpr);
-
 function getDistance(x,y,X,Y){
   return Math.sqrt((x-X)*(x-X) + (y-Y)*(y-Y));
 }
+
+player = null;
+
 //drawing background in black
 var clearCanvas = function(){
   ctx.fillStyle="black";
@@ -28,11 +34,18 @@ var clearCanvas = function(){
 };
 clearCanvas();
 
-player = null;
+function drawGameLogo(){
+  ctx.font = "30px Arial"
+  ctx.fillStyle="red";
+  ctx.fillText("Circle",130,100);
+  ctx.fillText("Royale",180,140);
+}
+drawGameLogo();
 function client_submit(){
   let room = document.getElementById('lobby').value;
   let name = document.getElementById('name').value;
-  
+  room = room.toLowerCase();
+  name = name.toLowerCase();
   // verify login input
   if(room == ''){
     log("Please enter Valid Room !");
@@ -58,9 +71,10 @@ function leave(){
 
 var drawPlayer = function(player) {
   //making the circle 
+  // ctx.drawImage(image, player.x , player.y , player.size * 2 , player.size * 2);
   ctx.beginPath();
   ctx.arc(player.x, player.y, player.size, 0, 2 * Math.PI);
-  ctx.fillStyle="red";
+  ctx.fillStyle="green";
   ctx.fill();
 };
 
@@ -68,7 +82,7 @@ var drawBullet = function(bullet) {
   //making the circle 
   ctx.beginPath();
   ctx.arc(bullet.x, bullet.y, 2, 0, 2 * Math.PI);
-  ctx.fillStyle="white";
+  ctx.fillStyle="red";
   ctx.fill();
 };
 socket.on('render',function(gameState){
@@ -77,6 +91,9 @@ socket.on('render',function(gameState){
   console.log(gameState.bullets);
   for(let p of gameState.players){
     drawPlayer(p);
+    if(p.id === player.id){
+      player = p;
+    }
   }
   for(let b of gameState.bullets){
     drawBullet(b);
@@ -89,6 +106,7 @@ socket.on('player_init',function(p){
 });
 socket.on('game_end',function(){
   clearCanvas();
+  drawGameLogo();
   console.log('gameEnd');
   document.getElementById('listplayers').style.display = 'flex';
 });
@@ -100,7 +118,7 @@ socket.on('players_joined',function(players){
   for(let player of players){
     let li = document.createElement('div');
     li.appendChild(document.createTextNode(player.name));
-    li.appendChild(document.createTextNode(player.ready?'Ready':'Not Ready'));
+    li.appendChild(document.createTextNode(player.ready?'  :  Ready':'  :  Not Ready'));
     document.getElementById('list').appendChild(li);
   }
 });

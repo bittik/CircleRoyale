@@ -37,6 +37,7 @@ function newPlayer(data,connState,socket){
 function leavePlayer(connState,socket){
   if(!connState.player)return;
   connState.player.destroyPlayer(connState.room.getGameState());
+  connState.player = null;
   socket.leave(connState.room.id);
   io.sockets.in(connState.room.id).emit('players_joined',connState.room.getPlayers());
 }
@@ -49,11 +50,11 @@ io.on('connection',function(socket){
     newPlayer(playerData,connState,socket);
   });
   socket.on('player_update',function(p){
-    if(!connState.player)return;
+    if(!connState.player || connState.player.isDead())return;
       connState.room.updatePlayer(p);
   });
   socket.on('shoot',function(target){
-    if(!connState.player)return;
+    if(!connState.player || connState.player.isDead())return;
     let bulletDirection = utils.getBulletDirection(connState.player.x,connState.player.y,target.x,target.y);
     connState.room.addBullet(connState.player.x,connState.player.y, bulletDirection,connState.player);
   });
