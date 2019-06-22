@@ -32,10 +32,18 @@ Room.prototype.startLoop = function(io){
         this.gameState.temp.push(player);
     }
     this.loop = setInterval(function(id,io,gameState){
+
         //game loop starts here
+
         console.log(gameState.temp);
         if(gameState.players.length <= 1){
             clearInterval(this);
+            if(gameState.players.length){
+
+                //TODO :- Fix the winner mechanism
+                io.sockets.in(id).emit('log',gameState.players[0].name + ' ' +'won !');
+
+            }
             gameState.gameRunning = false;
             gameState.players = [];
             for(let player of gameState.temp){
@@ -56,9 +64,6 @@ Room.prototype.startLoop = function(io){
         }
         io.sockets.in(id).emit('render', gameState);
     },50,this.id,io,this.gameState);
-}
-Room.prototype.endLoop = function(io){
-   
 }
 Room.prototype.getPlayers = function(){
     return this.gameState.players;
@@ -103,9 +108,6 @@ Room.prototype.readyPlayer = function(player,io){
     }
 }
 Room.prototype.startNewGame = function(io){
-    for(let player of this.gameState.players){
-        player.initPlayer();
-    }
     this.startLoop(io);
     this.setGameRunning(true);
 }

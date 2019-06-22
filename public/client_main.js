@@ -30,9 +30,20 @@ clearCanvas();
 
 player = null;
 function client_submit(){
-  let room = document.getElementById('lobby');
-  let name = document.getElementById('name');
-  socket.emit('submit', {room: room.value , name : name.value});
+  let room = document.getElementById('lobby').value;
+  let name = document.getElementById('name').value;
+  
+  // verify login input
+  if(room == ''){
+    log("Please enter Valid Room !");
+    return;
+  } 
+  if(name == ''){
+    log("Please enter Valid Name !");
+    return;
+  }
+
+  socket.emit('submit', {room: room , name : name});
   document.getElementById('login').style.display = 'none';
   document.getElementById('listplayers').style.display = 'flex';
 }
@@ -61,6 +72,7 @@ var drawBullet = function(bullet) {
   ctx.fill();
 };
 socket.on('render',function(gameState){
+  //render incoming data on screen
   clearCanvas();
   console.log(gameState.bullets);
   for(let p of gameState.players){
@@ -86,7 +98,7 @@ socket.on('players_joined',function(players){
     node.removeChild(node.firstChild);
   }
   for(let player of players){
-    let li = document.createElement('li');
+    let li = document.createElement('div');
     li.appendChild(document.createTextNode(player.name));
     li.appendChild(document.createTextNode(player.ready?'Ready':'Not Ready'));
     document.getElementById('list').appendChild(li);
@@ -95,9 +107,12 @@ socket.on('players_joined',function(players){
 socket.on('loop_started',function(){
   document.getElementById('listplayers').style.display = 'none';
 });
-socket.on('log',function(log){
-  alert(log);
+socket.on('log',function(message){
+  log(message);
 })
+function log(message){
+  alert(message);
+}
 function getMousePos(canvas, evt) {
   var rect = canvas.getBoundingClientRect();
   return {
@@ -105,6 +120,8 @@ function getMousePos(canvas, evt) {
     y: evt.clientY - rect.top
   };
 }
+
+//Pointer events
 c.addEventListener("mousedown",function(e){
   e.preventDefault();
   if(!player)return;
@@ -136,6 +153,7 @@ c.addEventListener("mouseup",function(event){
   }
 });
 
+// touch events
 c.addEventListener("touchstart",function(e){
   if(!player)return;
   isMousePressed = true;

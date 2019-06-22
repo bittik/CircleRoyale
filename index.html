@@ -8,15 +8,15 @@
     <div class="container">
         <div style="width:400px;height:700px;border: 1px solid white;">
           <div id="login">
-            <input id="lobby" placeholder="  Enter Lobby Id">
-            <input id="name" placeholder="  Enter Name">
-            <button id="submit" onClick="client_submit()">Join</button>
+            <input id="lobby" class="element" placeholder="  Enter Lobby Id">
+            <input id="name" class="element" placeholder="  Enter Name">
+            <button id="submit" class="element" onClick="client_submit()">Join</button>
           </div>
           <div id="listplayers">
-            <ul id="list">
-            </ul>
-            <button onclick="ready()">Ready</button>
-            <button onclick="leave()">Leave</button>
+            <div class="joinView" id="list">
+            </div>
+            <button class="element" onclick="ready()">Ready</button>
+            <button class="element" onclick="leave()">Leave</button>
           </div>
             <canvas id="myCanvas"></canvas>
             <script src="/client_main.js"></script>

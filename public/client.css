@@ -6,7 +6,12 @@
   align-items : center;
   background-color : black;
 }
-body, html {margin: 0;padding: 0;height : 100vh;}
+body, html {
+  margin: 0;
+  padding: 0;
+  height : 100vh;
+  font-family: Arial, Helvetica, sans-serif;
+}
 #login {
   position: absolute;
   flex-direction : column;
@@ -30,21 +35,16 @@ body, html {margin: 0;padding: 0;height : 100vh;}
   display : none;
   color : white;
 }
-#lobby {
-  height: 30px;
+.element {
+  color: gray;
   width : 200px;
   border-radius: 25px;
   margin-top : 15px;
 }
-#name {
-  height: 30px;
+.joinView{
+  color: gray;
+  height: 100px;
   width : 200px;
-  border-radius: 25px;
   margin-top : 15px;
-}
-#submit {
-  height: 30px;
-  width : 200px;
-  border-radius: 25px;
-  margin-top : 15px;
+  overflow : auto;
 }
