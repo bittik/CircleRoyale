@@ -26,7 +26,7 @@ function getDistance(x,y,X,Y){
 }
 
 player = null;
-
+gameStateLocal = null;
 //drawing background in black
 var clearCanvas = function(){
   ctx.fillStyle="black";
@@ -87,8 +87,8 @@ var drawBullet = function(bullet) {
 };
 socket.on('render',function(gameState){
   //render incoming data on screen
+  gameStateLocal = gameState;
   clearCanvas();
-  console.log(gameState.bullets);
   for(let p of gameState.players){
     drawPlayer(p);
     if(p.id === player.id){
@@ -99,6 +99,19 @@ socket.on('render',function(gameState){
     drawBullet(b);
   }
 });
+
+function renderLocal(){
+  clearCanvas();
+  for(let p of gameStateLocal.players){
+    drawPlayer(p);
+    if(p.id === player.id){
+      player = p;
+    }
+  }
+  for(let b of gameStateLocal.bullets){
+    drawBullet(b);
+  }
+}
 
 socket.on('player_init',function(p){
    console.log(p);
@@ -167,6 +180,7 @@ c.addEventListener("mouseup",function(event){
     let dist = getDistance(pos.x,pos.y,player.x,player.y);
     player.x = player.x + (((pos.x-player.x)/dist)*movementUnit);
     player.y = player.y + (((pos.y-player.y)/dist)*movementUnit);
+    renderLocal();
     socket.emit('player_update',player);
   }
 });
@@ -200,6 +214,7 @@ c.addEventListener("touchend",function(event){
     let dist = getDistance(pos.x,pos.y,player.x,player.y);
     player.x = player.x + (((pos.x-player.x)/dist)*movementUnit);
     player.y = player.y + (((pos.y-player.y)/dist)*movementUnit);
+    renderLocal();
     socket.emit('player_update',player);
   }
 });
