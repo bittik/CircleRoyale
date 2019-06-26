@@ -12,6 +12,15 @@ app.get('/', function(req, res){
   res.sendFile(__dirname + '/index.html');
 });
 
+//delete rooms not in use
+setInterval((rooms)=>{
+  for(let i=0; i < rooms.length ; i++){
+    if(rooms[i].getGameState().players.length === 0){
+      console.log(rooms[i]);
+      rooms.splice(i,1);
+    }
+  }
+},1*60000,rooms)
 function getRoom(id){
   for(let r of rooms){
     if(r.id === id){
@@ -59,6 +68,7 @@ io.on('connection',function(socket){
     connState.room.addBullet(connState.player.x,connState.player.y, bulletDirection,connState.player);
   });
   socket.on('ready',function(){
+    if(!connState.player)return;
     connState.room.readyPlayer(connState.player,io);
     connState.player.initPlayer();
     socket.emit('player_init',connState.player);

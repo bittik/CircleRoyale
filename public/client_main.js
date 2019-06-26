@@ -87,6 +87,7 @@ var drawBullet = function(bullet) {
 };
 socket.on('render',function(gameState){
   //render incoming data on screen
+  console.log('in loop');
   gameStateLocal = gameState;
   clearCanvas();
   for(let p of gameState.players){
@@ -99,19 +100,6 @@ socket.on('render',function(gameState){
     drawBullet(b);
   }
 });
-
-function renderLocal(){
-  clearCanvas();
-  for(let p of gameStateLocal.players){
-    drawPlayer(p);
-    if(p.id === player.id){
-      player = p;
-    }
-  }
-  for(let b of gameStateLocal.bullets){
-    drawBullet(b);
-  }
-}
 
 socket.on('player_init',function(p){
    console.log(p);
@@ -180,7 +168,6 @@ c.addEventListener("mouseup",function(event){
     let dist = getDistance(pos.x,pos.y,player.x,player.y);
     player.x = player.x + (((pos.x-player.x)/dist)*movementUnit);
     player.y = player.y + (((pos.y-player.y)/dist)*movementUnit);
-    renderLocal();
     socket.emit('player_update',player);
   }
 });
@@ -214,7 +201,6 @@ c.addEventListener("touchend",function(event){
     let dist = getDistance(pos.x,pos.y,player.x,player.y);
     player.x = player.x + (((pos.x-player.x)/dist)*movementUnit);
     player.y = player.y + (((pos.y-player.y)/dist)*movementUnit);
-    renderLocal();
     socket.emit('player_update',player);
   }
 });
